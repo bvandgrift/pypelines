@@ -2,40 +2,50 @@ from statistics import mean, pstdev  # , pvariance
 from scipy.signal import medfilt
 
 
-def fList(data):
-    return list(data)
+def fPlusOne(frame):
+    frame['data'] =  map(lambda x: x + 1, frame['data'])
+    return frame
 
 
-def fPlusOne(data, dargs={}):
-    return map(lambda x: x + 1, data)
+def fSquare(frame):
+    frame['data'] = map(lambda x: x * x, frame['data'])
+    return frame
 
 
-def fSquare(data, dargs={}):
-    return map(lambda x: x * x, data)
+def fFillMissing(frame):
+    thinned = filter(lambda x: x, frame['data'])
+    fill = frame['props'].get('fill') or mean(thinned)
+    frame['data'] = map(lambda x: x or fill, frame['data'])
+    return frame
 
 
-def fFillMissing(data, dargs={}):
-    fill = dargs.get('fill') or mean(data)
-    return map(lambda x: x or fill)
+def fRemoveOutliers(frame):
+    drift = frame['props'].get('drift') or 2.0
+    mu = mean(frame['data'])
+    stdev = pstdev(frame['data'], mu)
+    frame['data'] = filter(lambda x: abs(x - mu) < (stdev * drift), frame['data'])
+    return frame
 
 
-def fRemoveOutliers(data, dargs={}):
-    drift = dargs.get('drift') or 1.25
-    mu = mean(data)
-    stdev = pstdev(data, mu)
-    return filter(lambda x: abs(x - mu) < (stdev * drift))
+def fDamp(frame):
+    scale = frame['props'].get('scale') or 2
+    mu = mean(frame['data'])
+    frame['data'] = map(lambda x: mu + (x - mu) / scale, frame['data'])
+    return frame
 
 
-def fDamp(data, dargs={}):
-    scale = dargs.get('scale') or 2
-    mu = mean(data)
-    return map(lambda x: mu + (x - mu) / scale)
+def fMedian3(frame):
+    data = list(map(lambda x: float(x), frame['data']))
+    frame['data'] = medfilt(data, 3)
+    return frame
 
 
-def fMedian3(data, dargs={}):
-    return medfilt(data, 3)
+def fMedianN(frame):
+    width = frame.get('props').get('width') or 5
+    frame['data'] =  medfilt(frame['data'], width)
+    return frame
 
 
-def fMedianN(data, dargs={}):
-    width = dargs.get('width') or 5
-    return medfilt(data, width)
+def fList(frame):
+    frame['data'] = list(frame['data'])
+    return frame

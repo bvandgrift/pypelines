@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 
 import csv
-from config import config
-from toolz.functoolz import thread_last
+import matplotlib.pyplot as plt
+from pipeline import Pipeline
 
 if __name__ == '__main__':
 
-    with open('test1.csv', newline='', encoding='utf-8') as f:
+    pipeline = Pipeline()
+    with open('alevo.csv', newline='', encoding='utf-8') as f:
         reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        results = []
         for row in reader:
             if row:
-                results.append(list(thread_last(row, *config.filters)))
-        print(results)
+                trow = row[:100]
+                frame = pipeline.process(trow)
+                print(frame)
+                plt.plot(range(0, len(trow)),          trow,          'r--', linewidth=1)
+                plt.plot(range(0, len(frame['data'])), frame['data'], 'b-',  linewidth=1)
+                plt.show()

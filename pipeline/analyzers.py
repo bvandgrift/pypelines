@@ -1,13 +1,16 @@
 from statistics import mean, pstdev, pvariance
 
 
-def aMean(data, dargs={}):
-    return mean(data)
+def aMean(frame):
+    frame['summary'].update({'mean': mean(frame['data'])})
+    return frame
 
 
-def aStDev(data, dargs={}):
-    return pstdev(data)
+def aStDev(frame):
+    frame['summary'].update({'standardDeviation': pstdev(frame['data'])})
+    return frame
 
 
-def aVariance(data, dargs={}):
-    return pvariance(data)
+def aVariance(frame):
+    frame['summary'].update({'variance': pvariance(frame['data'])})
+    return frame
