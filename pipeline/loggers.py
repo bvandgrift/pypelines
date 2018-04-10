@@ -2,6 +2,11 @@ import csv
 import json
 
 
+def lDebug(frame):
+    print(frame)
+    return frame
+
+
 def lCSV(frame):
     outfile = frame['props'].get('out.csv') or 'out.csv'
     with open(outfile, 'a', newline='') as f:
